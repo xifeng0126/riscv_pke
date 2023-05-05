@@ -37,7 +37,7 @@ smode_trap_vector:
     # load the address of smode_trap_handler() from p->trapframe->kernel_trap
     ld t0, 256(a0)
 
-    # jump to smode_trap_handler() that is defined in kernel/trap.c
+    # jump to smode_trap_handler() that is defined in kernel/strap.c
     jr t0
 
 #
