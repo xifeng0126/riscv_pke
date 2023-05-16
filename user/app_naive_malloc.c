@@ -17,6 +17,6 @@ int main(void) {
 
   printu("s: %lx, {%c %d}\n", s, s->c, s->n);
 
-  naive_free(s);
+  naive_free(s);//待完善
   exit(0);
 }
