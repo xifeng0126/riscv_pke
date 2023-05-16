@@ -10,7 +10,6 @@
 #include "vmm.h"
 #include "util/functions.h"
 #include "memlayout.h"
-
 #include "spike_interface/spike_utils.h"
 
 //
@@ -66,10 +65,14 @@ void handle_user_page_fault(uint64 mcause, uint64 sepc, uint64 stval) {
       //通过输入的参数stval（存放的是发生缺页异常时，程序想要访问的逻辑地址）判断缺页的逻辑地址在用户进程逻辑地址空间中的位置，
       //看是不是比USER_STACK_TOP小，且比我们预设的可能的用户栈的最小栈底指针要大（这里，我们可以给用户栈空间一个上限，例如20个4KB的页面），
       //分配一个物理页，将所分配的物理页面映射到stval所对应的虚拟地址上。
-    if(stval < USER_STACK_TOP && stval > (USER_STACK_TOP - 20 * PGSIZE)){
-      void* pa = alloc_page();//分配
-      user_vm_map((pagetable_t)current->pagetable, ROUNDDOWN(stval, PGSIZE), PGSIZE, (uint64)pa, prot_to_type(PROT_WRITE | PROT_READ, 1));//映射
-     }
+      if(stval < USER_STACK_TOP && stval > (USER_STACK_TOP - 20 * STACK_SIZE)){
+        void* pa = alloc_page();
+        user_vm_map((pagetable_t)current->pagetable, ROUNDDOWN(stval, PGSIZE), PGSIZE, (uint64)pa, prot_to_type(PROT_WRITE | PROT_READ, 1));
+        current->alloc_pages++;
+      }
+      if (stval < USER_STACK_TOP - PGSIZE * current->alloc_pages) {
+        panic("this address is not available!");
+      }
       break;
     default:
       sprint("unknown page fault.\n");
