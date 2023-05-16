@@ -149,7 +149,7 @@ void kern_vm_init(void) {
 // convert and return the corresponding physical address of a virtual address (va) of
 // application.
 //
-void *user_va_to_pa(pagetable_t page_dir, void *va) {
+void *user_va_to_pa(pagetable_t page_dir, void *va) {//实现虚拟地址到物理地址转换
   // TODO (lab2_1): implement user_va_to_pa to convert a given user virtual address "va"
   // to its corresponding physical address, i.e., "pa". To do it, we need to walk
   // through the page table, starting from its directory "page_dir", to locate the PTE
@@ -159,7 +159,14 @@ void *user_va_to_pa(pagetable_t page_dir, void *va) {
   // (va & (1<<PGSHIFT -1)) means computing the offset of "va" inside its page.
   // Also, it is possible that "va" is not mapped at all. in such case, we can find
   // invalid PTE, and should return NULL.
-  panic( "You have to implement user_va_to_pa (convert user va to pa) to print messages in lab2_1.\n" );
+  //panic( "You have to implement user_va_to_pa (convert user va to pa) to print messages in lab2_1.\n" );
+  uint64 pa = lookup_pa(page_dir,(uint64)va);
+  if(pa){
+    return (void*)(pa + ((uint64)va & ((1 << PGSHIFT) - 1)));
+  }
+  else{
+     return NULL;
+ }
 
 }
 
