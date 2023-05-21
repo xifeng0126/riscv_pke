@@ -149,7 +149,7 @@ void kern_vm_init(void) {
 // convert and return the corresponding physical address of a virtual address (va) of
 // application.
 //
-void *user_va_to_pa(pagetable_t page_dir, void *va) {
+void *user_va_to_pa(pagetable_t page_dir, void *va) {//实现虚拟地址到物理地址转换
   // TODO (lab2_1): implement user_va_to_pa to convert a given user virtual address "va"
   // to its corresponding physical address, i.e., "pa". To do it, we need to walk
   // through the page table, starting from its directory "page_dir", to locate the PTE
@@ -159,7 +159,14 @@ void *user_va_to_pa(pagetable_t page_dir, void *va) {
   // (va & (1<<PGSHIFT -1)) means computing the offset of "va" inside its page.
   // Also, it is possible that "va" is not mapped at all. in such case, we can find
   // invalid PTE, and should return NULL.
-  panic( "You have to implement user_va_to_pa (convert user va to pa) to print messages in lab2_1.\n" );
+  //panic( "You have to implement user_va_to_pa (convert user va to pa) to print messages in lab2_1.\n" );
+  uint64 pa = lookup_pa(page_dir,(uint64)va);
+  if(pa){
+    return (void*)(pa + ((uint64)va & ((1 << PGSHIFT) - 1)));
+  }
+  else{
+     return NULL;
+ }
 
 }
 
@@ -184,7 +191,17 @@ void user_vm_unmap(pagetable_t page_dir, uint64 va, uint64 size, int free) {
   // (use free_page() defined in pmm.c) the physical pages. lastly, invalidate the PTEs.
   // as naive_free reclaims only one page at a time, you only need to consider one page
   // to make user/app_naive_malloc to behave correctly.
-  panic( "You have to implement user_vm_unmap to free pages using naive_free in lab2_2.\n" );
+  //panic( "You have to implement user_vm_unmap to free pages using naive_free in lab2_2.\n" );
+  //找到一个给定va所对应的页表项PTE
+  //如果找到（过滤找不到的情形），通过该PTE的内容得知va所对应物理页的首地址pa；
+  //回收pa对应的物理页，并将PTE中的Valid位置为0。
+  if(free){
+  pte_t *PTE = page_walk(page_dir, va, 0);
+      if(PTE){
+   free_page((void *)(PTE2PA(*PTE)));
+     *PTE = *PTE & (~PTE_V);
+   }
+  }
 
 }
 
