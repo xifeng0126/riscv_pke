@@ -41,8 +41,7 @@ smode_trap_vector:
     ld t1, 272(a0)
     csrw satp, t1
     sfence.vma zero, zero
-
-    # jump to smode_trap_handler() that is defined in kernel/trap.c
+    # jump to smode_trap_handler() that is defined in kernel/strap.c
     jr t0
 
 #
