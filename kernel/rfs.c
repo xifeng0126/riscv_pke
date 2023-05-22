@@ -595,8 +595,38 @@ int rfs_link(struct vinode *parent, struct dentry *sub_dentry, struct vinode *li
   // 2) append the new (link) file as a dentry to its parent directory; you can use 
   //    rfs_add_direntry here.
   // 3) persistent the changes to disk. you can use rfs_write_back_vinode here.
-  //
-  panic("You need to implement the code for creating a hard link in lab4_3.\n" );
+  //将旧文件vinode的硬链接数加一；
+  //新创建硬链接的父目录文件中添加一个目录项：“新文件名：旧dinode号”；
+  //将node写回到DISK中。
+  //panic("You need to implement the code for creating a hard link in lab4_3.\n" );
+  struct rfs_device *rdev = rfs_device_list[parent->sb->s_dev->dev_id];//获取设备
+
+  // 检查新路径名是否已经存在
+  if (rfs_lookup(parent, sub_dentry) != NULL) {
+    sprint("rfs_link: file with same name already exists");
+    return -1;
+  }
+
+  //将新的硬链接信息更新到父目录的目录项表中
+  if(rfs_add_direntry(parent, sub_dentry->name, link_node->inum) != 0) {
+    sprint("rfs_link: rfs_add_direntry failed");
+    return -1;
+  }
+
+  // 将新的目录项写回磁盘
+  if (rfs_write_back_vinode(parent) != 0) {
+    sprint("rfs_link: rfs_write_back_vinode failed");
+    return -1;
+  }
+
+  // 将新链接对应的索引节点（inode）的nlinks字段加1，表示有一个新的硬链接指向该索引节点
+  link_node->nlinks++;
+
+  // 将新的目录项写回磁盘
+  rfs_write_back_vinode(link_node);
+
+  return 0;
+  
 }
 
 //
