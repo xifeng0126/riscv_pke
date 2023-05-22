@@ -76,3 +76,15 @@ int fork() {
 void yield() {
   do_user_call(SYS_user_yield, 0, 0, 0, 0, 0, 0, 0);
 }
+
+int sem_new(int n){
+  return do_user_call(SYS_user_sem_new, n, 0, 0, 0, 0, 0, 0);//n为新建资源数
+}
+
+void sem_P(int n){ 
+  do_user_call(SYS_user_sem_P, n, 0, 0, 0, 0, 0, 0);//n为对n号进程执行操作
+}
+
+void sem_V(int n){ 
+  do_user_call(SYS_user_sem_V, n, 0, 0, 0, 0, 0, 0);
+}
