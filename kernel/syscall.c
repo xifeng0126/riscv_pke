@@ -77,7 +77,13 @@ ssize_t sys_user_yield() {
   // hint: the functionality of yield is to give up the processor. therefore,
   // we should set the status of currently running process to READY, insert it in
   // the rear of ready queue, and finally, schedule a READY process to run.
-  panic( "You need to implement the yield syscall in lab3_2.\n" );
+  //panic( "You need to implement the yield syscall in lab3_2.\n" );
+  //接下来进程释放CPU。首先当前进程置为就绪状态（READY）；
+  //接着将当前进程加入到就绪队列的队尾；
+  //最后转进程调度。
+  current->status = READY;
+  insert_to_ready_queue(current);
+  schedule();
 
   return 0;
 }
